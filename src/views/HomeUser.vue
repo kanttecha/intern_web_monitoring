@@ -1,13 +1,13 @@
 <template>
   <div>
     <nav>
-      <router-link to="/home"> TABLE </router-link> 
+  
+      <router-link to="/homeuser"> TABLE </router-link> 
 
-
-      <router-link to="/about"> ADD INFO </router-link>
+     
       <router-link to="/insert"> Map V2 </router-link>
       <router-link to="/hls"> ALL HLS </router-link>
-      <router-link to="/panel"> Admin Panel </router-link>
+
     </nav>
   </div>
 
@@ -23,7 +23,7 @@
           <th>RTSP Cameras</th>
           <th>URL</th>
           <th>Responsible Person</th>
-          <th>Action</th> <!-- Edit and Delete buttons columns -->
+          
         </tr>
       </thead>
       <tbody>
@@ -42,10 +42,6 @@
           </td>
           <td>{{ item.url }}</td>
           <td>{{ item.responsiblePerson }}</td>
-          <td>
-            <button @click="editScorecardItem(item.id)">Edit</button>
-            <button @click="deleteScorecardItem(item.id)">Delete</button>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -54,7 +50,7 @@
 </template>
 
 <script>
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs,  } from "firebase/firestore";
 import { firestore } from "@/firebase";
 
 export default {
@@ -81,23 +77,7 @@ export default {
         console.error("Error fetching scorecard data:", error);
       }
     },
-    async deleteScorecardItem(itemId) {
-      try {
-        const scorecardDocRef = doc(firestore, "your_collection", itemId);
-        await deleteDoc(scorecardDocRef);
 
-        // Update the local array to reflect the deletion
-        this.scorecardData = this.scorecardData.filter((item) => item.id !== itemId);
-
-        console.log("Document successfully deleted!");
-      } catch (error) {
-        console.error("Error deleting document:", error);
-      }
-    },
-    editScorecardItem(itemId) {
-      // Navigate to the edit page with the document ID
-      this.$router.push({ name: 'edit', params: { id: itemId } });
-    },
   },
 };
 </script>
