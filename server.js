@@ -3,11 +3,19 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const admin = require('firebase-admin');
+const serviceAccount = require('./src/firebase/serviceAccountKey.json'); // Adjust the path
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors({ origin: 'http://192.168.1.20:8080' })); // Allow requests from http://192.1681.20:8080
+// Firebase Admin initialization
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+// Middleware
+app.use(cors({ origin: 'http://192.168.1.20:8080' }));
 app.use(express.json());
 
 // Serve HLS files from the 'hls' directory
@@ -57,9 +65,6 @@ app.delete('/deleteFiles', async (req, res) => {
         return;
       }
       console.log('ffmpeg.exe process killed successfully:', stdout);
-      
-
-
       res.status(200).send('Files deleted successfully.');
     });
   } catch (error) {
@@ -93,6 +98,21 @@ app.get('/runAllBatFiles', async (req, res) => {
   }
 });
 
+// Define a route for deleting users using Firebase Admin SDK
+app.delete('/deleteUsers/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Delete the user from Firebase Authentication
+    await admin.auth().deleteUser(userId);
+
+    res.status(200).send(`User with ID ${userId} deleted successfully.`);
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).send('An error occurred during deletion of the user.');
+  }
+});
+
 // Function to run all .bat files simultaneously
 function runAllBatFiles(batFiles, res, batFilesDir) {
   const promises = batFiles.map(file => {
@@ -122,6 +142,7 @@ function runAllBatFiles(batFiles, res, batFilesDir) {
     });
 }
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

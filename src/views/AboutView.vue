@@ -1,13 +1,5 @@
 <template>
-  <div>
-    <nav>
-      <router-link to="/home"> TABLE </router-link> 
-      <router-link to="/about"> ADD INFO </router-link>
-      <router-link to="/insert"> Map V2 </router-link>
-      <router-link to="/hls"> ALL HLS </router-link>
-      <router-link to="/panel"> Admin Panel </router-link>
-    </nav>
-  </div>
+
   <div>
     <h1>Add Scorecard Information</h1>
     <form @submit.prevent="addScorecard">

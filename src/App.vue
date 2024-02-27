@@ -1,11 +1,14 @@
 <template>
   <div>
     <nav>
-
-      
-    <button v-if="isLoggedIn" @click="logout">Logout</button>
+      <router-link to="/home">TABLE</router-link>
+      <router-link to="/about">ADD INFO</router-link>
+      <router-link to="/insert">Map V2</router-link>
+      <router-link to="/hls">ALL HLS</router-link>
+      <router-link to="/panel">Admin Panel</router-link>
+      <router-link to="/profile">User Profile</router-link>
+      <button v-if="isLoggedIn" @click="logout">Logout</button>
     </nav>
-
     <router-view/>
   </div>
 </template>

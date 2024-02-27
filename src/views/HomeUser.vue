@@ -1,17 +1,5 @@
 <template>
   <div>
-    <nav>
-  
-      <router-link to="/homeuser"> TABLE </router-link> 
-
-     
-      <router-link to="/insert"> Map V2 </router-link>
-      <router-link to="/hls"> ALL HLS </router-link>
-
-    </nav>
-  </div>
-
-  <div>
     <h1>Scorecard Information</h1>
     <table>
       <thead>

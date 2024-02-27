@@ -61,9 +61,15 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/mqtt',
-    name: 'mqtt',
-    component: () => import('../views/mqttView.vue'),
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/ProfileView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/editprofile',
+    name: 'editprofile',
+    component: () => import('../views/EditProfileView.vue'),
     meta: { requiresAuth: true }
   },
 ];
