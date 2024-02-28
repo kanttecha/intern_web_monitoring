@@ -14,10 +14,17 @@
         <label for="telephone">Telephone:</label>
         <input type="tel" id="telephone" v-model="updatedProfile.telephone" required>
       </div>
+      
       <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" id="email" v-model="updatedProfile.email" required>
+        <label for="newPassword">New Password:</label>
+        <div class="password-input">
+          <input :type="passwordFieldType" id="newPassword" v-model="updatedProfile.newPassword">
+          <button type="button" @click="togglePasswordVisibility">
+            {{ showPassword ? 'Hide' : 'Show' }} Password
+          </button>
+        </div>
       </div>
+      
       <button type="submit" class="button-save">Save Changes</button>
       <!-- Display success message if profile was successfully updated -->
       <p v-if="profileUpdated" class="success-message">Profile updated successfully!</p>
@@ -27,8 +34,8 @@
 
 <script>
 import { auth, firestore } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
-
+import { getDocs, collection ,updateDoc} from 'firebase/firestore'; // Remove unused imports
+import { updatePassword } from 'firebase/auth';
 export default {
   data() {
     return {
@@ -36,23 +43,35 @@ export default {
         firstName: '',
         lastName: '',
         telephone: '',
-        email: ''
+        email: '',
+        newPassword: '' // New password field
       },
-      profileUpdated: false // Flag to track if profile was successfully updated
+      profileUpdated: false, // Flag to track if profile was successfully updated
+      showPassword: false, // Flag to track whether password is visible or not
     };
   },
   async mounted() {
-    // Fetch the current user's profile data to pre-fill the form
     try {
+      // Get the current authenticated user
       const user = auth.currentUser;
       if (user) {
-        const userId = user.uid;
-        const userDocRef = doc(firestore, 'users', userId);
-        const userDocSnapshot = await userDocRef.get();
-        if (userDocSnapshot.exists()) {
-          const userData = userDocSnapshot.data();
-          this.updatedProfile = { ...userData };
-        } else {
+        // Use the UID from Firebase Auth
+        const uid = user.uid;
+        console.log(uid);
+        
+        // Fetch the user document based on the UID
+        const usersCollectionRef = collection(firestore, 'users');
+        const querySnapshot = await getDocs(usersCollectionRef);
+        
+        querySnapshot.forEach(doc => {
+          const userData = doc.data();
+          if (userData.userId === uid) {
+            // User document found, update the component state with user data
+            this.updatedProfile = { ...userData };
+          }
+        });
+        
+        if (!this.updatedProfile) {
           console.error('User document not found');
         }
       } else {
@@ -63,28 +82,66 @@ export default {
     }
   },
   methods: {
-    async updateProfile() {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const userId = user.uid;
-          const userDocRef = doc(firestore, 'users', userId);
-          await updateDoc(userDocRef, this.updatedProfile);
-          console.log('Profile updated successfully');
-          // Optionally, you can navigate back to the profile view after updating
-          this.$router.push({ name: 'userprofile' });
-          // Set profileUpdated flag to true to show success message
-          this.profileUpdated = true;
-        } else {
-          console.error('User not authenticated');
+async updateProfile() {
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      console.log('User ID:', userId); // Log the user ID
+
+      // Fetch the user document based on the userId field
+      const usersCollectionRef = collection(firestore, 'users');
+      const querySnapshot = await getDocs(usersCollectionRef);
+      
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        if (userData.userId === userId) {
+          // Document found, update the profile
+          const userDocRef = doc.ref;
+          console.log('Document ID:', userDocRef.id); // Log the document ID
+          
+          // Update the user profile
+          updateDoc(userDocRef, this.updatedProfile).then(() => {
+            console.log('Profile updated successfully');
+            
+            // Change password if newPassword field is not empty
+            if (this.updatedProfile.newPassword !== '') {
+              updatePassword(user, this.updatedProfile.newPassword).then(() => {
+                console.log('Password updated successfully');
+              }).catch(error => {
+                console.error('Error updating password:', error.message);
+              });
+            }
+            
+            // Optionally, you can navigate back to the profile view after updating
+            this.$router.push({ name: 'profile' });
+            // Set profileUpdated flag to true to show success message
+            this.profileUpdated = true;
+          }).catch(error => {
+            console.error('Error updating user profile:', error.message);
+          });
         }
-      } catch (error) {
-        console.error('Error updating user profile: ', error.message);
-      }
+      });
+    } else {
+      console.error('User not authenticated');
+    }
+  } catch (error) {
+    console.error('Error updating user profile:', error.message);
+  }
+},
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    }
+  },
+  computed: {
+    passwordFieldType() {
+      return this.showPassword ? 'text' : 'password';
     }
   }
 };
 </script>
+
+
 
 <style>
 /* Add your styling here */
@@ -108,7 +165,8 @@ label {
 
 input[type="text"],
 input[type="tel"],
-input[type="email"] {
+input[type="email"],
+input[type="password"] {
   width: 100%;
   padding: 10px;
   font-size: 16px;

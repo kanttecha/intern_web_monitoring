@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import store from '@/store';
 
 const routes = [
   {
@@ -58,7 +59,7 @@ const routes = [
     path: '/panel',
     name: 'panel',
     component: () => import('../views/AdminPanel.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , requiresAdmin: true }
   },
   {
     path: '/profile',
@@ -87,7 +88,24 @@ router.beforeEach((to, from, next) => {
     if (requiresAuth && !user) {
       next({ name: 'login' });
     } else {
-      next();
+      // Check if the route requires admin role
+      if (to.meta.requiresAdmin) {
+        // Check if the user is authenticated
+        if (user) {
+          // Check if the user has admin role
+          if (store.getters.userRole === 'admin') {
+            next();
+          } else {
+            // Redirect to unauthorized page or home page
+            next({ name: 'home' });
+          }
+        } else {
+          // Redirect to login page
+          next({ name: 'login' });
+        }
+      } else {
+        next();
+      }
     }
   });
 });

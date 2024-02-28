@@ -5,7 +5,7 @@
       <router-link to="/about">ADD INFO</router-link>
       <router-link to="/insert">Map V2</router-link>
       <router-link to="/hls">ALL HLS</router-link>
-      <router-link to="/panel">Admin Panel</router-link>
+      <router-link v-if="isAdmin" to="/panel">Admin Panel</router-link>
       <router-link to="/profile">User Profile</router-link>
       <button v-if="isLoggedIn" @click="logout">Logout</button>
     </nav>
@@ -13,22 +13,36 @@
   </div>
 </template>
 
-
 <script>
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref } from 'vue';
-import { auth } from './firebase'; // Adjust the path to your firebase.js file
+import { auth, firestore } from './firebase'; // Adjust the path to your firebase.js file
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from 'vue-router'; // Import useRouter from vue-router
 
 export default {
   name: 'App',
   setup() {
     const isLoggedIn = ref(false);
+    const isAdmin = ref(false);
     const router = useRouter(); // Get the router instance
 
     // Check if the user is already logged in
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       isLoggedIn.value = !!user;
+      
+      if (user) {
+        const userId = user.uid;
+        const userQuery = query(collection(firestore, 'users'), where('userId', '==', userId));
+        const querySnapshot = await getDocs(userQuery);
+
+        querySnapshot.forEach(doc => {
+          const userData = doc.data();
+          if (userData.role === 'admin') {
+            isAdmin.value = true;
+          }
+        });
+      }
     });
 
     const logout = async () => {
@@ -44,21 +58,13 @@ export default {
 
     return {
       isLoggedIn,
+      isAdmin,
       logout
     };
   }
 };
+
 </script>
-
-
-
-
-
-
-
-
-
-
 
 <style>
 

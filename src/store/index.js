@@ -5,6 +5,7 @@ const store = createStore({
     return {
       isAuthenticated: false,
       userId: null,
+      userRole: localStorage.getItem('userRole') || null, // Initialize userRole from local storage
       errorMessage: null
     };
   },
@@ -15,11 +16,26 @@ const store = createStore({
     setUserId(state, userId) {
       state.userId = userId;
     },
+    setUserRole(state, userRole) { // Mutation to set userRole
+      state.userRole = userRole;
+      localStorage.setItem('userRole', userRole);
+    },
     setErrorMessage(state, errorMessage) {
       state.errorMessage = errorMessage;
     }
   },
   actions: {
+    async login({ commit }, { userCredential, userRole }) { // Modify login action to accept userRole
+      try {
+        commit('setAuthenticated', true);
+        commit('setUserId', userCredential.user.uid);
+        commit('setUserRole', userRole); // Set userRole in the store
+        commit('setErrorMessage', null);
+      } catch (error) {
+        console.error('Error logging in user:', error.message);
+        commit('setErrorMessage', error.message);
+      }
+    },
     // eslint-disable-next-line no-unused-vars
     async register({ commit }, { firstName, lastName, telephone, email, password }) {
       try {
@@ -36,6 +52,7 @@ const store = createStore({
   getters: {
     isAuthenticated: state => state.isAuthenticated,
     userId: state => state.userId,
+    userRole: state => state.userRole, // Getter to retrieve userRole
     errorMessage: state => state.errorMessage
   }
 });

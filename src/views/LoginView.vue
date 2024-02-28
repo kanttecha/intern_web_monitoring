@@ -38,25 +38,30 @@ export default {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         console.log('User logged in successfully', userCredential.user);
+
+        // Console log the UID from Firebase Authentication
+        console.log('User UID:', userCredential.user.uid);
+
         localStorage.setItem('isAuthenticated', true);
         // Fetch user role from Firestore
         const usersCollection = collection(firestore, 'users');
         const userQuery = query(usersCollection, where('userId', '==', userCredential.user.uid));
         const querySnapshot = await getDocs(userQuery);
 
+        // Inside the login method after fetching user role from Firestore
         if (!querySnapshot.empty) {
           const user = querySnapshot.docs[0].data();
           const role = user.role;
           console.log('User role:', role);
+          
+          // Dispatch login action with userRole
+          this.$store.dispatch('login', { userCredential, userRole: role });
 
-          // Redirect based on user role
-          if (role === 'admin') {
-            this.$router.push({ name: 'home' });
-          } else if (role === 'user') {
-            this.$router.push({ name: 'homeuser' });
-          } else {
-            console.error('Unknown user role:', role);
-          }
+          // Store user role in local storage
+          localStorage.setItem('userRole', role);
+
+          // Redirect to home page
+          this.$router.push({ name: 'home' });
         } else {
           console.error('User data not found in Firestore');
         }
