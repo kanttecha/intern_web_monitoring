@@ -22,8 +22,6 @@
 
       <button type="button" @click="addCamera">Add Camera</button>
 
-      <label for="url">URL:</label>
-      <input v-model="editedItem.url" type="url" required>
 
       <label for="responsiblePerson">Responsible Person:</label>
       <input v-model="editedItem.responsiblePerson" type="text" required>
@@ -46,7 +44,7 @@ export default {
         longitude: '',
         serialNumber: '',
         rtspCameras: [{ value: '' }],
-        url: '',
+
         responsiblePerson: '',
       },
     };

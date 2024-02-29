@@ -1,15 +1,15 @@
 <template>
-  <div>
+  <div id="app">
     <nav>
-      <router-link to="/home">TABLE</router-link>
-      <router-link to="/about">ADD INFO</router-link>
-      <router-link to="/insert">Map V2</router-link>
-      <router-link to="/hls">ALL HLS</router-link>
-      <router-link v-if="isAdmin" to="/panel">Admin Panel</router-link>
-      <router-link to="/profile">User Profile</router-link>
-      <button v-if="isLoggedIn" @click="logout">Logout</button>
+      <router-link to="/home" class="nav-link" active-class="active-link">TABLE</router-link>
+      <router-link to="/about" class="nav-link" active-class="active-link">ADD INFO</router-link>
+      <router-link to="/insert" class="nav-link" active-class="active-link">Map V2</router-link>
+      <router-link to="/hls" class="nav-link" active-class="active-link">ALL HLS</router-link>
+      <router-link v-if="isAdmin" to="/panel" class="nav-link" active-class="active-link">Admin Panel</router-link>
+      <router-link to="/profile" class="nav-link" active-class="active-link">User Profile</router-link>
+      <button v-if="isLoggedIn" @click="logout" class="logout-btn">Logout</button>
     </nav>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -63,19 +63,9 @@ export default {
     };
   }
 };
-
 </script>
 
-<style>
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-
-
+<style scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -85,17 +75,44 @@ export default {
 }
 
 nav {
-  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure nav takes full width */
 }
 
-nav a {
+.nav-link {
   font-weight: bold;
-  color: #2c3e50;
+  color: #333;
+  text-decoration: none;
+  margin: 0 10px;
+  transition: color 0.3s ease;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
+.nav-link:hover {
+  color: #007bff;
 }
 
+.active-link {
+  color: #007bff;
+}
 
+.logout-btn {
+  margin-left: auto;
+  padding: 8px 12px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #dc3545;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
 </style>

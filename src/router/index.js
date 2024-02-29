@@ -39,12 +39,7 @@ const routes = [
     component: () => import('../views/HLS.vue'),
     meta: { requiresAuth: true }
   },
-  {
-    path: '/homeuser',
-    name: 'homeuser',
-    component: () => import('../views/HomeUser.vue'),
-    meta: { requiresAuth: true }
-  },
+
   {
     path: '/',
     name: 'login',
@@ -71,6 +66,12 @@ const routes = [
     path: '/editprofile',
     name: 'editprofile',
     component: () => import('../views/EditProfileView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/aaaa:id',
+    name: 'aaaa',
+    component: () => import('@/views/ReviewEditRequests.vue'),
     meta: { requiresAuth: true }
   },
 ];

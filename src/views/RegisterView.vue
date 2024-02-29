@@ -58,7 +58,7 @@ export default {
         this.password = '';
 
         // Redirect to homeuser page after successful registration
-        this.$router.push({ name: 'homeuser' });
+        this.$router.push({ name: 'home' });
       } catch (error) {
         console.error('Error registering user: ', error.message);
         // Set error message

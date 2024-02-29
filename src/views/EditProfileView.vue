@@ -100,13 +100,17 @@ async updateProfile() {
           const userDocRef = doc.ref;
           console.log('Document ID:', userDocRef.id); // Log the document ID
           
-          // Update the user profile
-          updateDoc(userDocRef, this.updatedProfile).then(() => {
+          // Remove newPassword field before updating Firestore document
+          const { newPassword, ...profileData } = this.updatedProfile;
+
+          // Update the user profile without newPassword
+          updateDoc(userDocRef, profileData).then(() => {
             console.log('Profile updated successfully');
             
             // Change password if newPassword field is not empty
-            if (this.updatedProfile.newPassword !== '') {
-              updatePassword(user, this.updatedProfile.newPassword).then(() => {
+            if (newPassword !== '') {
+              // Update password in Firebase Authentication
+              updatePassword(user, newPassword).then(() => {
                 console.log('Password updated successfully');
               }).catch(error => {
                 console.error('Error updating password:', error.message);
@@ -129,6 +133,8 @@ async updateProfile() {
     console.error('Error updating user profile:', error.message);
   }
 },
+
+
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     }
