@@ -181,6 +181,17 @@ input[type="password"] {
   border-radius: 5px;
 }
 
+.button-save {
+  width: 85%;
+  padding: 10px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .password-input {
   position: relative;
 }

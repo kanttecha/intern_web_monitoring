@@ -5,7 +5,7 @@
       <router-link to="/insert" class="nav-link" active-class="active-link">JOB LOCATION</router-link>
       <router-link to="/hls" class="nav-link" active-class="active-link">JOB STREAMING</router-link>
       <router-link to="/about" class="nav-link" active-class="active-link">ADD JOB</router-link>
-      <router-link v-if="isAdmin" to="/panel" class="nav-link" active-class="active-link">Admin Panel</router-link>
+      <router-link v-if="isAdmin" to="/panel" class="nav-link" active-class="active-link">ADMIN PANEL</router-link>
       <div v-if="isLoggedIn" class="user-section">
         <router-link :to="'/profile'">
           <img src="/user_icon.png" alt="User Icon" class="user-icon" />
