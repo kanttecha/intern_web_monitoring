@@ -1,0 +1,1 @@
+ffmpeg -v verbose -rtsp_transport tcp -i "rtsp://user1:abcd1234@scgr.saiiot.com:5554/cam/realmonitor?channel=1&subtype=1&subtype=1" -vf scale=704:576 -vcodec libx264 -r 25 -b:v 500000 -crf 25 -acodec aac -sc_threshold 0 -f hls -hls_time 5 -segment_time 5 -hls_list_size 5 -hls_flags delete_segments "11111_2.m3u8"
