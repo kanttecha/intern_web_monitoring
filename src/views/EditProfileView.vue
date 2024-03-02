@@ -1,6 +1,6 @@
 <template>
   <div class="edit-profile-container">
-    <h2>Edit Profile</h2>
+    <h2>Edit {{ updatedProfile.username }}'s Profile</h2>
     <form @submit.prevent="updateProfile">
       <div class="form-group">
         <label for="firstName">First Name:</label>
@@ -14,17 +14,30 @@
         <label for="telephone">Telephone:</label>
         <input type="tel" id="telephone" v-model="updatedProfile.telephone" required>
       </div>
-      
       <div class="form-group">
         <label for="newPassword">New Password:</label>
         <div class="password-input">
-          <input :type="passwordFieldType" id="newPassword" v-model="updatedProfile.newPassword">
-          <button type="button" @click="togglePasswordVisibility">
-            {{ showPassword ? 'Hide' : 'Show' }} Password
-          </button>
+          <input :type="newPasswordFieldType" id="newPassword" v-model="updatedProfile.newPassword" required>
+          <img
+            :src="showNewPassword ? 'eye.png' : 'hidden.png'"
+            alt="Toggle New Password Visibility"
+            class="password-icon"
+            @click="toggleNewPasswordVisibility"
+          />
         </div>
       </div>
-      
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password:</label>
+        <div class="password-input">
+          <input :type="confirmPasswordFieldType" id="confirmPassword" v-model="confirmPassword" required>
+          <img
+            :src="showConfirmPassword ? 'eye.png' : 'hidden.png'"
+            alt="Toggle Confirm Password Visibility"
+            class="password-icon"
+            @click="toggleConfirmPasswordVisibility"
+          />
+        </div>
+      </div>
       <button type="submit" class="button-save">Save Changes</button>
       <!-- Display success message if profile was successfully updated -->
       <p v-if="profileUpdated" class="success-message">Profile updated successfully!</p>
@@ -34,8 +47,9 @@
 
 <script>
 import { auth, firestore } from '@/firebase';
-import { getDocs, collection ,updateDoc} from 'firebase/firestore'; // Remove unused imports
+import { getDocs, collection, updateDoc } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
+
 export default {
   data() {
     return {
@@ -44,36 +58,28 @@ export default {
         lastName: '',
         telephone: '',
         email: '',
-        newPassword: '' // New password field
+        newPassword: ''
       },
-      profileUpdated: false, // Flag to track if profile was successfully updated
-      showPassword: false, // Flag to track whether password is visible or not
+      confirmPassword: '', // Confirm password field
+      profileUpdated: false,
+      showNewPassword: false,
+      showConfirmPassword: false
     };
   },
   async mounted() {
     try {
-      // Get the current authenticated user
       const user = auth.currentUser;
       if (user) {
-        // Use the UID from Firebase Auth
-        const uid = user.uid;
-        console.log(uid);
-        
-        // Fetch the user document based on the UID
+        const userId = user.uid;
         const usersCollectionRef = collection(firestore, 'users');
         const querySnapshot = await getDocs(usersCollectionRef);
-        
+
         querySnapshot.forEach(doc => {
           const userData = doc.data();
-          if (userData.userId === uid) {
-            // User document found, update the component state with user data
+          if (userData.userId === userId) {
             this.updatedProfile = { ...userData };
           }
         });
-        
-        if (!this.updatedProfile) {
-          console.error('User document not found');
-        }
       } else {
         console.error('User not authenticated');
       }
@@ -82,74 +88,67 @@ export default {
     }
   },
   methods: {
-async updateProfile() {
-  try {
-    const user = auth.currentUser;
-    if (user) {
-      const userId = user.uid;
-      console.log('User ID:', userId); // Log the user ID
+    async updateProfile() {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const userId = user.uid;
+          const usersCollectionRef = collection(firestore, 'users');
+          const querySnapshot = await getDocs(usersCollectionRef);
 
-      // Fetch the user document based on the userId field
-      const usersCollectionRef = collection(firestore, 'users');
-      const querySnapshot = await getDocs(usersCollectionRef);
-      
-      querySnapshot.forEach(doc => {
-        const userData = doc.data();
-        if (userData.userId === userId) {
-          // Document found, update the profile
-          const userDocRef = doc.ref;
-          console.log('Document ID:', userDocRef.id); // Log the document ID
-          
-          // Remove newPassword field before updating Firestore document
-          const { newPassword, ...profileData } = this.updatedProfile;
+          querySnapshot.forEach(doc => {
+            const userData = doc.data();
+            if (userData.userId === userId) {
+              const userDocRef = doc.ref;
+              const { newPassword, ...profileData } = this.updatedProfile;
 
-          // Update the user profile without newPassword
-          updateDoc(userDocRef, profileData).then(() => {
-            console.log('Profile updated successfully');
-            
-            // Change password if newPassword field is not empty
-            if (newPassword !== '') {
-              // Update password in Firebase Authentication
-              updatePassword(user, newPassword).then(() => {
-                console.log('Password updated successfully');
+              if (newPassword !== this.confirmPassword) {
+                window.alert('Passwords do not match');
+                return; // Exit method if passwords do not match
+              }
+
+              updateDoc(userDocRef, profileData).then(() => {
+                if (newPassword !== '') {
+                  updatePassword(user, newPassword).then(() => {
+                    console.log('Password updated successfully');
+                  }).catch(error => {
+                    console.error('Error updating password:', error.message);
+                  });
+                }
+
+                this.$router.push({ name: 'profile' });
+                this.profileUpdated = true;
               }).catch(error => {
-                console.error('Error updating password:', error.message);
+                console.error('Error updating user profile:', error.message);
               });
             }
-            
-            // Optionally, you can navigate back to the profile view after updating
-            this.$router.push({ name: 'profile' });
-            // Set profileUpdated flag to true to show success message
-            this.profileUpdated = true;
-          }).catch(error => {
-            console.error('Error updating user profile:', error.message);
           });
+        } else {
+          console.error('User not authenticated');
         }
-      });
-    } else {
-      console.error('User not authenticated');
-    }
-  } catch (error) {
-    console.error('Error updating user profile:', error.message);
-  }
-},
-
-
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
+      } catch (error) {
+        console.error('Error updating user profile:', error.message);
+      }
+    },
+    toggleNewPasswordVisibility() {
+      this.showNewPassword = !this.showNewPassword;
+    },
+    toggleConfirmPasswordVisibility() {
+      this.showConfirmPassword = !this.showConfirmPassword;
     }
   },
   computed: {
-    passwordFieldType() {
-      return this.showPassword ? 'text' : 'password';
+    newPasswordFieldType() {
+      return this.showNewPassword ? 'text' : 'password';
+    },
+    confirmPasswordFieldType() {
+      return this.showConfirmPassword ? 'text' : 'password';
     }
   }
 };
 </script>
 
-
-
-<style>
+<style scoped>
 /* Add your styling here */
 .edit-profile-container {
   max-width: 400px;
@@ -167,36 +166,32 @@ async updateProfile() {
 label {
   display: block;
   font-weight: bold;
+  text-align: left;
+  padding-left: 25px;
 }
 
 input[type="text"],
 input[type="tel"],
 input[type="email"],
 input[type="password"] {
-  width: 100%;
+  width: calc(100% - 50px); /* Adjusted width to accommodate icon */
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-button.button-save {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 5px;
+.password-input {
+  position: relative;
+}
+
+.password-icon {
   cursor: pointer;
-}
-
-button.button-save:hover {
-  background-color: #218838;
-}
-
-.success-message {
-  color: green;
-  margin-top: 10px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+  padding-right: 25px;
 }
 </style>

@@ -9,13 +9,30 @@
       <input v-model="lastName" type="text" placeholder="Last Name" required>
     </div>
     <div class="input-group">
+      <input v-model="username" type="text" placeholder="Username" required>
+    </div>
+    <div class="input-group">
       <input v-model="telephone" type="tel" placeholder="Telephone Number" required>
     </div>
     <div class="input-group">
       <input v-model="email" type="email" placeholder="Email" required>
     </div>
-    <div class="input-group">
-      <input v-model="password" type="password" placeholder="Password" required>
+    <div class="input-group" style="position: relative;">
+      <input v-model="password" ref="passwordInput" :type="showPassword ? 'text' : 'password'" placeholder="Password" required>
+      <img
+        v-if="!showPassword"
+        src="hidden.png"
+        alt="Show Password"
+        class="password-icon"
+        @click="togglePasswordVisibility"
+      />
+      <img
+        v-else
+        src="eye.png"
+        alt="Hide Password"
+        class="password-icon"
+        @click="togglePasswordVisibility"
+      />
     </div>
     <button class="buttonregister" @click="register">Register</button>
   </div>
@@ -31,10 +48,12 @@ export default {
     return {
       firstName: '',
       lastName: '',
+      username: '',
       telephone: '',
       email: '',
       password: '',
-      errorMessage: ''
+      errorMessage: '',
+      showPassword: false
     };
   },
   methods: {
@@ -46,13 +65,14 @@ export default {
 
         // Add user to Firestore with default user role
         const usersCollection = collection(firestore, 'users');
-        await addDoc(usersCollection, { userId, firstName: this.firstName, lastName: this.lastName, telephone: this.telephone, email: this.email, role: 'user' });
+        await addDoc(usersCollection, { userId, firstName: this.firstName, lastName: this.lastName, username: this.username, telephone: this.telephone, email: this.email, role: 'user' });
 
         console.log('User registered successfully with ID: ', userId);
 
         // Clear form fields after successful registration
         this.firstName = '';
         this.lastName = '';
+        this.username = '';
         this.telephone = '';
         this.email = '';
         this.password = '';
@@ -64,11 +84,19 @@ export default {
         // Set error message
         this.errorMessage = error.message;
       }
+    },
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+      const passwordInput = this.$refs.passwordInput;
+      if (this.showPassword) {
+        passwordInput.type = 'text';
+      } else {
+        passwordInput.type = 'password';
+      }
     }
   }
 };
 </script>
-
 
 <style>
 /* Add your styling here */
@@ -117,5 +145,14 @@ input[type="password"] {
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
+}
+
+.password-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
 }
 </style>

@@ -1,32 +1,52 @@
 <template>
   <div>
-    <h2>Edit Scorecard</h2>
-    <form @submit.prevent="updateScorecard">
-      <label for="placeOfWork">Place of Work:</label>
-      <input v-model="editedItem.placeOfWork" type="text" id="placeOfWork" required>
+    <form @submit.prevent="updateScorecard" class="form-container">
+      <div class="form-columns">
+        <!-- First Column -->
+        <div class="form-column">
+          <div class="form-group">
+            <label for="placeOfWork">Job Name:</label>
+            <input v-model="editedItem.placeOfWork" type="text" id="placeOfWork" required>
+          </div>
 
-      <label for="latitude">Latitude:</label>
-      <input v-model="editedItem.latitude" type="number" step="any" id="latitude" required>
+          <div class="form-group">
+            <label for="latitude">Latitude:</label>
+            <input v-model="editedItem.latitude" type="number" step="any" id="latitude" required>
+          </div>
 
-      <label for="longitude">Longitude:</label>
-      <input v-model="editedItem.longitude" type="number" step="any" id="longitude" required>
+          <div class="form-group">
+            <label for="longitude">Longitude:</label>
+            <input v-model="editedItem.longitude" type="number" step="any" id="longitude" required>
+          </div>
 
-      <label for="serialNumber">Serial Number:</label>
-      <input v-model="editedItem.serialNumber" type="text" id="serialNumber" required disabled>
+          <div class="form-group">
+            <label for="serialNumber">Serial Number:</label>
+            <input v-model="editedItem.serialNumber" type="text" id="serialNumber" required disabled>
+          </div>
 
-      <label for="rtspCameras">RTSP Cameras:</label>
-      <div v-for="(camera, index) in editedItem.rtspCameras" :key="index">
-        <input v-model="camera.value" type="text" required>
-        <button type="button" @click="removeCamera(index)">Remove</button>
+          <div class="form-group">
+            <label for="responsiblePerson">Responsible Person:</label>
+            <input v-model="editedItem.responsiblePerson" type="text" required>
+          </div>
+          <button class="updatebutton" type="submit">Update</button>
+        </div>
+
+        <!-- Second Column -->
+        <div class="form-column">
+          <div class="form-group" v-for="(camera, index) in editedItem.rtspCameras" :key="index">
+            <label for="rtspCamera">RTSP Camera:</label>
+            <input v-model="camera.value" type="text" required>
+            <button class="remove-camera" type="button" @click="removeCamera(index)">Remove</button>
+          </div>
+
+          <!-- Display the generated URL -->
+          <div class="form-group">
+            <button class="add-camera" type="button" @click="addCamera">Add Camera</button>
+          </div>
+        </div>
       </div>
 
-      <button type="button" @click="addCamera">Add Camera</button>
-
-
-      <label for="responsiblePerson">Responsible Person:</label>
-      <input v-model="editedItem.responsiblePerson" type="text" required>
-
-      <button type="submit">Update</button>
+      
     </form>
   </div>
 </template>
@@ -44,7 +64,6 @@ export default {
         longitude: '',
         serialNumber: '',
         rtspCameras: [{ value: '' }],
-
         responsiblePerson: '',
       },
     };
@@ -93,21 +112,91 @@ export default {
 };
 </script>
 
-<style>
-/* Add your styling here */
-form {
-  max-width: 400px;
+<style scoped>
+/* Adjusted styling for the form */
+.form-container {
+  max-width: 800px; /* Adjust as needed */
   margin: auto;
+  padding-top: 50px;
+}
+
+.form-columns {
+  display: flex;
+  gap: 20px; /* Adjust the gap between columns */
+}
+
+.form-column {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 16px;
 }
 
 label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 8px; /* Add some spacing between label and input */
+  text-align: left;
+  font-weight: bold; /* Make the label bold */
+  color: #333; /* Darken the label color */
 }
 
 input {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 16px;
+  padding: 10px; /* Increase padding for better appearance */
+  border: 1px solid #ccc; /* Add a border */
+  border-radius: 5px; /* Add rounded corners */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+input:focus {
+  outline: none; /* Remove the default focus outline */
+  border-color: #66afe9; /* Change border color on focus */
+}
+
+.remove-camera {
+  padding: 8px 16px; /* Adjust padding for smaller buttons */
+  background-color: #dc3545; /* Red for remove button */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-camera:hover {
+  background-color: #c82333; /* Darker red for remove button on hover */
+}
+
+.add-camera {
+  padding: 8px 16px; /* Adjust padding for smaller buttons */
+  background-color: #1c782b; /* Green for add button */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-camera:hover {
+  background-color: #0056b3; /* Darker green for add button on hover */
+}
+
+button[type="submit"] {
+  margin-top: 16px; /* Add margin-top to separate from other buttons */
+}
+.updatebutton {
+  margin-top: 16px;
+  padding: 10px 20px; /* Add padding to the button */
+  background-color: #1c782b; /* Set background color */
+  color: #fff; /* Set text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer; /* Add cursor pointer on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.updatebutton:hover {
+  background-color: #0056b3; /* Change background color on hover */
 }
 </style>

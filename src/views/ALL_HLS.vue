@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div style="padding-top:20px">
     <!-- Buttons for generating .bat files, running all .bat files, and deleting files -->
     <div class="button-container">
-      <button @click="performSubStreamOperation">Sub Stream</button>
-      <button @click="performMainStreamOperation">Main Stream</button>
-      <button @click="deleteFiles">Delete Files</button>
+      <button @click="performMainStreamOperation" class="button">Main Stream</button>
+      <button @click="performSubStreamOperation" class="button">Sub Stream</button>
+      <button @click="deleteFiles" class="button" style="background-color: #dc3545; color: white;">Delete Files</button>
+
     </div>
 
     <!-- Loop through the videos and render each one -->
@@ -26,8 +27,8 @@
         
         <!-- Buttons for capturing and recording -->
         <div class="button-container">
-          <button @click="toggleRecord(index)">{{ recording[index] ? 'Stop Recording' : 'Start Recording' }}</button>
-          <button @click="capture(index)">Capture</button>
+          <button @click="toggleRecord(index)" class="button">{{ recording[index] ? 'Stop Recording' : 'Start Recording' }}</button>
+          <button @click="capture(index)" class="button">Capture</button>
         </div>
       </div>
     </div>
@@ -127,6 +128,7 @@ export default {
           this.mediaRecorders[index].stop();
         }
       } catch (error) {
+        alert("Error recording: " + error.message);
         console.error("Error recording:", error);
       }
     },
@@ -147,6 +149,7 @@ export default {
         a.click();
         document.body.removeChild(a);
       } catch (error) {
+        alert("Error capturing: " + error.message);
         console.error("Error capturing:", error);
       }
     },
@@ -189,9 +192,11 @@ export default {
         if (response.status === 200) {
           console.log("Bat files generated successfully.");
         } else {
+          alert("Failed to generate .bat files.");
           console.error("Failed to generate .bat files.");
         }
       } catch (error) {
+        alert("Error generating .bat files: " + error.message);
         console.error("Error generating .bat files:", error);
       }
     },
@@ -234,9 +239,11 @@ export default {
         if (response.status === 200) {
           console.log("Bat files generated successfully.");
         } else {
+          alert("Failed to generate .bat files.");
           console.error("Failed to generate .bat files.");
         }
       } catch (error) {
+        alert("Error generating .bat files: " + error.message);
         console.error("Error generating .bat files:", error);
       }
     },
@@ -247,6 +254,7 @@ export default {
         await axios.delete('http://192.168.1.20:3000/deleteFiles');
         console.log("Files deleted successfully.");
       } catch (error) {
+        alert("Error deleting files: " + error.message);
         console.error("Error deleting files:", error);
       }
     },
@@ -256,6 +264,7 @@ export default {
         console.log(response.data); // Log the response from the server
         // Optionally, you can show a success message or perform other actions after running all .bat files
       } catch (error) {
+        alert("Error running .bat files: " + error.message);
         console.error('Error running .bat files:', error);
         // Optionally, you can show an error message or perform other actions if running the .bat files fails
       }
@@ -290,5 +299,9 @@ export default {
   flex-basis: calc(33.33% - 20px); /* Adjust based on the number of videos per row */
   margin-right: 20px;
 }
-
+.button {
+  margin-right: 10px;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
 </style>

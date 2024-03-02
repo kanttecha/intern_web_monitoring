@@ -6,7 +6,7 @@
       <div class="form-column">
         <form @submit.prevent="addScorecard">
           <div class="form-group">
-            <label for="placeOfWork">Place of Work:</label>
+            <label for="placeOfWork">Job Name:</label>
             <input v-model="newScorecard.placeOfWork" type="text" required>
           </div>
 
@@ -28,6 +28,7 @@
           <div class="form-group">
             <label for="responsiblePerson">Responsible Person:</label>
             <input v-model="newScorecard.responsiblePerson" type="text" required>
+            <button class="addinfo" type="submit">Add Information</button>
           </div>
         </form>
       </div>
@@ -38,17 +39,13 @@
           <div class="form-group" v-for="(camera, index) in newScorecard.rtspCameras" :key="index">
             <label for="rtspCamera">RTSP Camera:</label>
             <input v-model="camera.value" type="text" required>
-            <button type="button" @click="removeCamera(index)">Remove</button>
+            <button class="remove-camera" type="button" @click="removeCamera(index)">Remove</button>
           </div>
-
-         
 
           <!-- Display the generated URL -->
           <div class="form-group">
-           <button type="button" @click="addCamera">Add Camera</button>
+            <button class="add-camera" type="button" @click="addCamera">Add Camera</button>
           </div>
-
-          <button class="addinfo" type="submit">Add Information</button>
         </form>
       </div>
     </div>
@@ -143,6 +140,9 @@ export default {
 label {
   display: block;
   margin-bottom: 8px; /* Add some spacing between label and input */
+  text-align: left;
+  font-weight: bold; /* Make the label bold */
+  color: #333; /* Darken the label color */
 }
 
 input {
@@ -172,6 +172,35 @@ input:focus {
 .addinfo:hover {
   background-color: #0056b3; /* Change background color on hover */
 }
+
+.remove-camera{
+  padding: 8px 16px; /* Adjust padding for smaller buttons */
+  background-color: #dc3545; /* Red for remove button and green for add button */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-camera:hover{
+  background-color: #c82333; /* Darker red for remove button and darker green for add button on hover */
+}
+
+.add-camera {
+  padding: 8px 16px; /* Adjust padding for smaller buttons */
+  background-color: #1c782b; /* Red for remove button and green for add button */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Add rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-camera:hover {
+  background-color:  #0056b3; /* Darker red for remove button and darker green for add button on hover */
+}
 </style>
+
 
 

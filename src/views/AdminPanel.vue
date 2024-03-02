@@ -1,18 +1,18 @@
 <template>
   <div class="admin-panel">
-    
-    
     <table>
       <thead>
         <tr>
+          <th>Username</th>
           <th>Email</th>
-          <th>Name</th>
+          <th>Name-Surname</th>
           <th>Role</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(user, index) in paginatedUsersFiltered" :key="index">
+          <td>{{ user.username }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.firstName }} {{ user.lastName }}</td>
           <td>
@@ -23,8 +23,8 @@
             </select>
           </td>
           <td>
-            <button @click="confirmRoleChange(user)">Change Role</button>
-            <button @click="confirmDeleteUser(user.id, user.userId)">Delete User</button>
+            <button class="changerole" @click="confirmRoleChange(user)">Change Role</button>
+            <button class="deleteuser" @click="confirmDeleteUser(user.id, user.userId)">Delete User</button>
           </td>
         </tr>
       </tbody>
@@ -33,10 +33,11 @@
       <button @click="prevPage" :disabled="currentPage === 1">Prev</button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-      
-    <div class="search-container">
-        <input type="text" v-model="searchQuery" placeholder="Search by email or name">
-    </div>
+      <div class="search-container">
+        
+        <input type="text" v-model="searchQuery" @input="handleSearch" placeholder="Search...">
+
+      </div>
     </div>
   </div>
 </template>
@@ -71,6 +72,7 @@ export default {
             id: doc.id,
             userId: doc.data().userId,
             email: doc.data().email,
+            username: doc.data().username, // Add username field
             firstName: doc.data().firstName,
             lastName: doc.data().lastName,
             selectedRole: doc.data().role,
@@ -129,11 +131,7 @@ export default {
       }
     };
 
-    const paginatedUsers = computed(() => {
-      const startIndex = (currentPage.value - 1) * pageSize.value;
-      const endIndex = currentPage.value * pageSize.value;
-      return users.value.slice(startIndex, endIndex);
-    });
+
 
     const totalPages = computed(() => Math.ceil(users.value.length / pageSize.value));
 
@@ -150,11 +148,20 @@ export default {
     };
 
     const paginatedUsersFiltered = computed(() => {
-      return paginatedUsers.value.filter(user =>
+      const startIndex = (currentPage.value - 1) * pageSize.value;
+      const endIndex = currentPage.value * pageSize.value;
+      const filteredUsers = users.value.filter(user =>
         user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
+      return filteredUsers.slice(startIndex, endIndex);
     });
+
+    const handleSearch = () => {
+      currentPage.value = 1; // Reset current page to 1 when searching
+    };
+
+
 
     fetchUsers(); // Fetch users when component is mounted
 
@@ -168,16 +175,16 @@ export default {
       nextPage,
       prevPage,
       searchQuery,
+      handleSearch,
     };
   },
 };
 </script>
 
 <style>
-/* Add your styling here */
 .admin-panel {
   margin: 0 auto;
-  max-width: 800px; /* Adjust the maximum width as needed */
+  max-width: 800px;
   padding-top: 20px;
 }
 
@@ -195,6 +202,7 @@ th, td {
 
 th {
   background-color: #f2f2f2;
+  text-align: center;
 }
 
 .pagination {
@@ -205,7 +213,34 @@ th {
 .pagination button {
   margin: 0 5px;
 }
+
 .search-container input {
-  margin-left: 50px;
+  margin-left: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.changerole, .deleteuser {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.changerole {
+  background-color: #d7a510;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.deleteuser {
+  background-color: #dc3545;
+  color: #fff;
+  margin-left: 5px;
+}
+
+.edit:hover, .delete:hover {
+  background-color: #878787;
 }
 </style>

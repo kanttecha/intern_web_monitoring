@@ -1,16 +1,15 @@
 <template>
   <div class="table-container">
-    
     <table>
       <!-- Table Header -->
       <thead>
         <!-- Table Header Rows -->
         <tr>
-          <th>Place of Work</th>
+          <th>Job Name</th>
           <th>Latitude</th>
           <th>Longitude</th>
           <th>Serial Number</th>
-          <th>RTSP Cameras</th>
+          <th v-if="isAuthorizedToViewRtspCamera">RTSP Camera</th> <!-- Conditionally render the column -->
           <th>Responsible Person</th>
           <th>Action</th> <!-- Edit and Delete buttons columns -->
         </tr>
@@ -18,13 +17,13 @@
       <!-- Table Body -->
       <tbody>
         <!-- Loop through displayed data -->
-        <tr v-for="(item, index) in displayedData" :key="index">
+        <tr v-for="(item, index) in paginatedData" :key="index">
           <!-- Table Data Cells -->
           <td>{{ item.placeOfWork }}</td>
           <td>{{ item.latitude }}</td>
           <td>{{ item.longitude }}</td>
           <td>{{ item.serialNumber }}</td>
-          <td>
+          <td v-if="isAuthorizedToViewRtspCamera"> <!-- Conditionally render the column -->
             <ul>
               <li v-for="(camera, cameraIndex) in item.rtspCameras" :key="cameraIndex">
                 {{ camera.value }}
@@ -33,9 +32,8 @@
           </td>
           <td>{{ item.responsiblePerson }}</td>
           <td>
-            <button v-if="isAuthorizedToEdit" @click="editScorecardItem(item.id)">Edit</button>
-            <button v-if="isAuthorizedToDelete" @click="deleteScorecardItem(item.id)">Delete</button>
-            
+            <button v-if="isAuthorizedToEdit" class="edit" @click="editScorecardItem(item.id)">Edit</button>
+            <button v-if="isAuthorizedToDelete" class="delete" @click="deleteScorecardItem(item.id)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -50,7 +48,7 @@
       </div>
       <!-- Search Input -->
       <div class="search-container">
-        <input v-model="searchQuery" type="text" placeholder="Search...">
+        <input v-model="searchQuery" type="text" @input="handleSearch" placeholder="Search...">
       </div>
     </div>
   </div>
@@ -60,6 +58,7 @@
 import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { firestore } from "@/firebase";
 import store from '@/store';
+
 export default {
   data() {
     return {
@@ -70,25 +69,13 @@ export default {
     };
   },
   computed: {
-    displayedData() {
-      const filteredData = this.scorecardData.filter(item => {
-        const searchRegex = new RegExp(this.searchQuery.trim(), "i");
-        return (
-          searchRegex.test(item.placeOfWork) ||
-          searchRegex.test(item.latitude) ||
-          searchRegex.test(item.longitude) ||
-          searchRegex.test(item.serialNumber) ||
-          searchRegex.test(item.responsiblePerson) ||
-          item.rtspCameras.some(camera => searchRegex.test(camera.value))
-        );
-      });
-
+    paginatedData() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      return filteredData.slice(startIndex, endIndex);
+      return this.filteredData.slice(startIndex, endIndex);
     },
-    totalPages() {
-      const filteredData = this.scorecardData.filter(item => {
+    filteredData() {
+      return this.scorecardData.filter(item => {
         const searchRegex = new RegExp(this.searchQuery.trim(), "i");
         return (
           searchRegex.test(item.placeOfWork) ||
@@ -96,21 +83,25 @@ export default {
           searchRegex.test(item.longitude) ||
           searchRegex.test(item.serialNumber) ||
           searchRegex.test(item.responsiblePerson) ||
-          item.rtspCameras.some(camera => searchRegex.test(camera.value))
+          (this.isAuthorizedToViewRtspCamera && item.rtspCameras.some(camera => searchRegex.test(camera.value))) // Check if user can view RTSP Camera column
         );
       });
-
-      return Math.ceil(filteredData.length / this.itemsPerPage);
     },
-        isAuthorizedToDelete() {
+    totalPages() {
+      return Math.ceil(this.filteredData.length / this.itemsPerPage);
+    },
+    isAuthorizedToDelete() {
       const userRole = store.getters.userRole;
       return userRole === 'admin' || userRole === 'web_admin';
     },
-    // Check if the user is authorized to edit
     isAuthorizedToEdit() {
       const userRole = store.getters.userRole;
       return userRole === 'admin' || userRole === 'web_admin';
     },
+    isAuthorizedToViewRtspCamera() {
+      const userRole = store.getters.userRole;
+      return userRole === 'admin' || userRole === 'web_admin';
+    }
   },
   mounted() {
     this.fetchScorecardData();
@@ -161,12 +152,14 @@ export default {
         this.currentPage++;
       }
     },
+    handleSearch() {
+      this.currentPage = 1; // Reset current page to 1 when searching
+    }
   },
 };
 </script>
 
 <style>
-/* Add your styling here */
 .table-container {
   padding-right: 50px; 
   padding-left: 50px;
@@ -186,6 +179,7 @@ th, td {
 
 th {
   background-color: #f2f2f2;
+  text-align: center;
 }
 
 ul {
@@ -212,9 +206,36 @@ li {
 
 .pagination button {
   margin-right: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px; /* Curve the button */
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color:  #878787;
 }
 
 .search-container input {
   margin-left: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Edit button */
+button.edit {
+  background-color: #d7a510; /* Yellow */
+  color: #fff;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+/* Delete button */
+button.delete {
+  background-color: #dc3545; /* Red */
+  color: #fff;
+  border-radius: 5px;
+  margin-left: 5px;
 }
 </style>

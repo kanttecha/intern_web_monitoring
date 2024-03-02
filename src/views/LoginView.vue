@@ -4,8 +4,22 @@
     <div class="input-group">
       <input v-model="email" type="email" placeholder="Email" required>
     </div>
-    <div class="input-group">
-      <input v-model="password" type="password" placeholder="Password" required>
+    <div class="input-group" style="position: relative;">
+      <input v-model="password" ref="passwordInput" :type="showPassword ? 'text' : 'password'" placeholder="Password" required>
+      <img
+        v-if="!showPassword"
+        src="hidden.png"
+        alt="Show Password"
+        class="password-icon"
+        @click="togglePasswordVisibility"
+      />
+      <img
+        v-else
+        src="eye.png"
+        alt="Hide Password"
+        class="password-icon"
+        @click="togglePasswordVisibility"
+      />
     </div>
     <button class="buttonlogin" @click="login">Login</button>
     
@@ -19,7 +33,6 @@
   </div>
 </template>
 
-
 <script>
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -30,7 +43,8 @@ export default {
     return {
       email: '',
       password: '',
-      errorMessage: '' // Added errorMessage property
+      errorMessage: '', // Added errorMessage property
+      showPassword: false // Added showPassword property
     };
   },
   methods: {
@@ -69,11 +83,20 @@ export default {
         console.error('Login error:', error.message);
         this.errorMessage = error.message; // Set errorMessage property
       }
-    }
+    },
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+      const passwordInput = this.$refs.passwordInput;
+      if (this.showPassword) {
+        passwordInput.classList.add('show-password');
+      } else {
+        passwordInput.classList.remove('show-password');
+      }
+    },
+
   }
 };
 </script>
-
 
 <style>
 /* Add your styling here */
@@ -93,12 +116,18 @@ export default {
 input[type="email"],
 input[type="password"] {
   width: 100%;
-  padding: 10px;
+  padding: 10px 35px 10px 10px; /* Adjusted padding to accommodate the icon */
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
+.show-password{
+  width: 100%;
+  padding: 10px 35px 10px 10px; /* Adjusted padding to accommodate the icon */
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 .buttonlogin {
   width: 100%;
   padding: 10px;
@@ -125,5 +154,13 @@ input[type="password"] {
   border-radius: 5px;
   margin-top: 10px;
 }
-</style>
 
+.password-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+}
+</style>

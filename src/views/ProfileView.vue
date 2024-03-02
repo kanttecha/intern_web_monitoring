@@ -1,6 +1,6 @@
 <template>
   <div class="profile-container">
-    <h2>User Profile</h2>
+    <h2>{{ profileTitle }}</h2>
     <div class="profile-item">
       <strong>First Name:</strong> {{ userProfile.firstName }}
     </div>
@@ -18,6 +18,7 @@
   </div>
 </template>
 
+
 <script>
 import { auth, firestore } from '@/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -32,6 +33,12 @@ export default {
         email: ''
       }
     };
+  },
+  computed: {
+    profileTitle() {
+      // Assuming `username` is a field in the retrieved user profile
+      return this.userProfile.username ? `${this.userProfile.username} Profile` : 'Profile';
+    }
   },
   async mounted() {
     try {
@@ -61,6 +68,7 @@ export default {
   }
 };
 </script>
+
 
 <style>
 /* Add your styling here */
