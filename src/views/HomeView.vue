@@ -1,13 +1,17 @@
 <template>
+
   <div class="table-container">
+    <!--<div class="google_map1">
+      <MapView />
+    </div> -->
     <table>
       <!-- Table Header -->
       <thead>
         <!-- Table Header Rows -->
         <tr>
           <th>Job Name</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
+          <th>Job Type</th>
+          <th>Job Location</th>
           <th>Serial Number</th>
           <th v-if="isAuthorizedToViewRtspCamera">RTSP Camera</th> <!-- Conditionally render the column -->
           <th>Responsible Person</th>
@@ -20,8 +24,8 @@
         <tr v-for="(item, index) in paginatedData" :key="index">
           <!-- Table Data Cells -->
           <td>{{ item.placeOfWork }}</td>
-          <td>{{ item.latitude }}</td>
-          <td>{{ item.longitude }}</td>
+          <td>{{ item.jobType }}</td>
+          <td>{{ item.province }}, {{ item.district }}, {{ item.subDistrict }}, {{ item.postalCode }}</td>
           <td>{{ item.serialNumber }}</td>
           <td v-if="isAuthorizedToViewRtspCamera"> <!-- Conditionally render the column -->
             <ul>
@@ -32,8 +36,10 @@
           </td>
           <td>{{ item.responsiblePerson }}</td>
           <td>
-            <button v-if="isAuthorizedToEdit" class="edit" @click="editScorecardItem(item.id)">Edit</button>
-            <button v-if="isAuthorizedToDelete" class="delete" @click="deleteScorecardItem(item.id)">Delete</button>
+            <div class="action-buttons">
+              <button v-if="isAuthorizedToEdit" class="edit" @click="editScorecardItem(item.id)">Edit</button>
+              <button v-if="isAuthorizedToDelete" class="delete" @click="deleteScorecardItem(item.id)">Delete</button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -54,12 +60,16 @@
   </div>
 </template>
 
+
 <script>
 import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { firestore } from "@/firebase";
 import store from '@/store';
-
+//import MapView from '@/components/MapView.vue';
 export default {
+    /*components: {
+    MapView,
+  },*/
   data() {
     return {
       scorecardData: [],
@@ -79,6 +89,11 @@ export default {
         const searchRegex = new RegExp(this.searchQuery.trim(), "i");
         return (
           searchRegex.test(item.placeOfWork) ||
+          searchRegex.test(item.jobType) ||
+          searchRegex.test(item.province) ||
+          searchRegex.test(item.district) ||
+          searchRegex.test(item.subDistrict) ||
+          searchRegex.test(item.postalCode) ||
           searchRegex.test(item.latitude) ||
           searchRegex.test(item.longitude) ||
           searchRegex.test(item.serialNumber) ||
@@ -223,12 +238,17 @@ li {
   border-radius: 5px;
 }
 
+/* Edit and delete button container */
+.action-buttons {
+  display: flex;
+  gap: 5px; /* Adjust the space between buttons */
+}
+
 /* Edit button */
 button.edit {
   background-color: #d7a510; /* Yellow */
   color: #fff;
   border-radius: 5px;
-  margin-right: 5px;
 }
 
 /* Delete button */
@@ -236,6 +256,11 @@ button.delete {
   background-color: #dc3545; /* Red */
   color: #fff;
   border-radius: 5px;
-  margin-left: 5px;
+}
+
+.google_map1{
+  width: 45%;
+  padding-top: 20px;
 }
 </style>
+

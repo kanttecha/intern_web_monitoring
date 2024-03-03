@@ -1,6 +1,6 @@
 <!-- App.vue -->
 <template>
-  <div id="app">
+  <div class="google_map">
     <!-- Other components or content -->
 
     <MapView />
@@ -18,5 +18,5 @@ export default {
 </script>
 
 <style>
-/* Add your global styling if needed */
+
 </style>

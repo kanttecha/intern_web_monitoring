@@ -10,6 +10,34 @@
             <input v-model="newScorecard.placeOfWork" type="text" required>
           </div>
 
+          <!-- Other form inputs -->
+
+          <div class="form-group">
+            <label for="postalCode">Postal Code:</label>
+            <input v-model="newScorecard.postalCode" type="text" required>
+          </div>
+
+          <!-- Display Province, District, Sub-District Lists -->
+          <div class="form-group">
+            <label for="province">Province:</label>
+            <select v-model="newScorecard.province">
+              <option v-for="province in provinceList" :key="province">{{ province }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="district">District:</label>
+            <select v-model="newScorecard.district">
+              <option v-for="district in districtList" :key="district">{{ district }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subDistrict">Sub-District:</label>
+            <select v-model="newScorecard.subDistrict">
+              <option v-for="subDistrict in subDistrictList" :key="subDistrict">{{ subDistrict }}</option>
+            </select>
+          </div>
+
+          <!-- Other form inputs -->
           <div class="form-group">
             <label for="latitude">Latitude:</label>
             <input v-model="newScorecard.latitude" type="number" step="any" required>
@@ -28,8 +56,15 @@
           <div class="form-group">
             <label for="responsiblePerson">Responsible Person:</label>
             <input v-model="newScorecard.responsiblePerson" type="text" required>
-            <button class="addinfo" type="submit">Add Information</button>
           </div>
+
+          <!-- Additional form input for job type -->
+          <div class="form-group">
+            <label for="jobType">Job Type:</label>
+            <input v-model="newScorecard.jobType" type="text" required>
+          </div>
+
+          <button class="addinfo" type="submit">Add Information</button>
         </form>
       </div>
 
@@ -52,10 +87,10 @@
   </div>
 </template>
 
-
 <script>
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "@/firebase";
+import data from "./th-address.json";
 
 export default {
   data() {
@@ -64,12 +99,28 @@ export default {
         placeOfWork: "",
         latitude: "",
         longitude: "",
+        postalCode: "",
         serialNumber: "",
         rtspCameras: [{ value: '' }],
         responsiblePerson: "",
+        jobType: ""
       },
       generatedURL: ""
     };
+  },
+  computed: {
+    filteredData() {
+      return data.find(item => item.zipCode === this.newScorecard.postalCode);
+    },
+    provinceList() {
+      return this.filteredData ? this.filteredData.provinceList.map(province => province.provinceName) : [];
+    },
+    districtList() {
+      return this.filteredData ? this.filteredData.districtList.map(district => district.districtName) : [];
+    },
+    subDistrictList() {
+      return this.filteredData ? this.filteredData.subDistrictList.map(subDistrict => subDistrict.subDistrictName) : [];
+    }
   },
   methods: {
     async addScorecard() {
@@ -94,9 +145,11 @@ export default {
           placeOfWork: "",
           latitude: "",
           longitude: "",
+          postalCode: "",
           serialNumber: "",
           rtspCamera: [],
           responsiblePerson: "",
+          jobType: ""
         };
 
         this.$router.push({ name: 'home' });
@@ -145,7 +198,7 @@ label {
   color: #333; /* Darken the label color */
 }
 
-input {
+input, select {
   width: 100%;
   padding: 10px; /* Increase padding for better appearance */
   border: 1px solid #ccc; /* Add a border */
@@ -153,7 +206,7 @@ input {
   transition: border-color 0.3s ease; /* Smooth transition for border color */
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none; /* Remove the default focus outline */
   border-color: #66afe9; /* Change border color on focus */
 }
@@ -201,6 +254,4 @@ input:focus {
   background-color:  #0056b3; /* Darker red for remove button and darker green for add button on hover */
 }
 </style>
-
-
 

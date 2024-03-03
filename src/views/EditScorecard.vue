@@ -9,6 +9,32 @@
             <input v-model="editedItem.placeOfWork" type="text" id="placeOfWork" required>
           </div>
 
+                    <!-- Additional inputs for jobType, province, district, subDistrict, and postalCode -->
+          <div class="form-group">
+            <label for="jobType">Job Type:</label>
+            <input v-model="editedItem.jobType" type="text" id="jobType" required>
+          </div>
+
+          <div class="form-group">
+            <label for="province">Province:</label>
+            <input v-model="editedItem.province" type="text" id="province" required>
+          </div>
+
+          <div class="form-group">
+            <label for="district">District:</label>
+            <input v-model="editedItem.district" type="text" id="district" required>
+          </div>
+
+          <div class="form-group">
+            <label for="subDistrict">Sub-District:</label>
+            <input v-model="editedItem.subDistrict" type="text" id="subDistrict" required>
+          </div>
+
+          <div class="form-group">
+            <label for="postalCode">Postal Code:</label>
+            <input v-model="editedItem.postalCode" type="text" id="postalCode" required>
+          </div>
+
           <div class="form-group">
             <label for="latitude">Latitude:</label>
             <input v-model="editedItem.latitude" type="number" step="any" id="latitude" required>
@@ -43,6 +69,8 @@
           <div class="form-group">
             <button class="add-camera" type="button" @click="addCamera">Add Camera</button>
           </div>
+          
+
         </div>
       </div>
 
@@ -65,6 +93,11 @@ export default {
         serialNumber: '',
         rtspCameras: [{ value: '' }],
         responsiblePerson: '',
+        jobType: '',
+        province: '',
+        district: '',
+        subDistrict: '',
+        postalCode: ''
       },
     };
   },
