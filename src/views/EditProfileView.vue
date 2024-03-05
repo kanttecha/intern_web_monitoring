@@ -17,7 +17,7 @@
       <div class="form-group">
         <label for="newPassword">New Password:</label>
         <div class="password-input">
-          <input :type="newPasswordFieldType" id="newPassword" v-model="updatedProfile.newPassword" required>
+          <input :type="newPasswordFieldType" id="newPassword" v-model="updatedProfile.newPassword">
           <img
             :src="showNewPassword ? 'eye.png' : 'hidden.png'"
             alt="Toggle New Password Visibility"
@@ -29,7 +29,7 @@
       <div class="form-group">
         <label for="confirmPassword">Confirm Password:</label>
         <div class="password-input">
-          <input :type="confirmPasswordFieldType" id="confirmPassword" v-model="confirmPassword" required>
+          <input :type="confirmPasswordFieldType" id="confirmPassword" v-model="confirmPassword">
           <img
             :src="showConfirmPassword ? 'eye.png' : 'hidden.png'"
             alt="Toggle Confirm Password Visibility"
@@ -102,13 +102,16 @@ export default {
               const userDocRef = doc.ref;
               const { newPassword, ...profileData } = this.updatedProfile;
 
-              if (newPassword !== this.confirmPassword) {
+              // Check if a new password is provided and validate
+              if (newPassword && newPassword !== this.confirmPassword) {
                 window.alert('Passwords do not match');
                 return; // Exit method if passwords do not match
               }
 
+              // Update profile data
               updateDoc(userDocRef, profileData).then(() => {
-                if (newPassword !== '') {
+                if (newPassword) {
+                  // Update password only if a new password is provided
                   updatePassword(user, newPassword).then(() => {
                     console.log('Password updated successfully');
                   }).catch(error => {
@@ -206,3 +209,5 @@ input[type="password"] {
   padding-right: 25px;
 }
 </style>
+
+
